@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'progress_kegiatan.dart';
+import 'package:pwl_mobile/Admin/pengguna.dart';
+import 'package:pwl_mobile/Dosen/progress_kegiatan.dart';
 import 'agenda_kegiatan.dart';
 import '../auth_service.dart';
 import 'list_kegiatan.dart';
-
 class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
 
@@ -18,14 +18,11 @@ class _BerandaPageState extends State<BerandaPage> {
 
   final String baseUrl = 'http://127.0.0.1:8000/api';
   final String _kegiatanUrl = 'http://127.0.0.1:8000/kegiatan';
-  final String progressurl = 'http://127.0.0.1:8000/api/progress';
 
   String? _nama;
   int _jumlahKegiatan = 0;
   bool _isLoading = true;
   bool _isLoadingKegiatan = true;
-  int _progress = 0;
-  bool _isLoadingprogress = true;
 
   @override
   void initState() {
@@ -71,30 +68,11 @@ class _BerandaPageState extends State<BerandaPage> {
 
   Future<void> _fetchData() async {
     setState(() {
-      _isLoadingKegiatan = true;
-      _isLoadingprogress = true;
+            _isLoadingKegiatan = true;
     });
-    await Future.wait([_fetchJumlahKegiatan(), _fetchprogress()]);
-  }
-
-  Future<void> _fetchprogress() async {
-    try {
-      final response = await _dio.get(progressurl);
-      if (response.statusCode == 200) {
-        final data = response.data['data'] as List;
-        setState(() {
-          _progress = data.length;
-          _isLoadingKegiatan = false;
-        });
-      } else {
-        throw Exception('Gagal memuat data');
-      }
-    } catch (e) {
-      print('Error: $e');
-      setState(() {
-        _isLoadingprogress = false;
-      });
-    }
+    await Future.wait([
+      _fetchJumlahKegiatan(),
+    ]);
   }
 
   Future<void> _fetchJumlahKegiatan() async {
@@ -167,7 +145,9 @@ class _BerandaPageState extends State<BerandaPage> {
       backgroundColor: const Color(0xFF1F4C97),
       body: SafeArea(
         child: Column(
-          children: [_buildHeader()],
+          children: [
+            _buildHeader()
+          ],
         ),
       ),
     );
@@ -334,25 +314,18 @@ class _BerandaPageState extends State<BerandaPage> {
             children: [
               _buildCategoryCard(
                 context,
-                'Kegiatan Non-JTI\n',
+                'Pengguna',
                 Icons.school,
                 _jumlahKegiatan,
-                () => _navigateToListKegiatan(context),
+                () => _navigateToPengguna(context),
               ),
               _buildCategoryCard(
                 context,
-                'Agenda Kegiatan\n',
+                'Kegiatan',
                 Icons.school,
                 _jumlahKegiatan,
                 () => _navigateToAgendaKegiatan(context),
               ),
-              _buildCategoryCard(
-                context,
-                'Progress Kegiatan\n',
-                Icons.school,
-                _jumlahKegiatan,
-                () => _navigateToAgendaKegiatan(context),
-              )
             ],
           ),
         ),
@@ -409,30 +382,21 @@ class _BerandaPageState extends State<BerandaPage> {
   void _navigateToAgendaKegiatan(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => const AgendaKegiatanPage(
-                kegiatanId: 0,
-              )),
+      MaterialPageRoute(builder: (context) => const AgendaKegiatanPage(kegiatanId: 0,)),
     );
   }
 
   void _navigateToProgress(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => const ProgressPage(
-                kegiatanId: 0,
-              )),
+      MaterialPageRoute(builder: (context) => const ProgressPage(kegiatanId: 0,)),
     );
   }
 
-  void _navigateToListKegiatan(BuildContext context) {
+  void _navigateToPengguna(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => const ListKegiatanPage(
-                kegiatanId: 0,
-              )),
+      MaterialPageRoute(builder: (context) => const PenggunaPage(kegiatanId: 0,)),
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../Pimpinan/beranda.dart'; // Path relatif untuk mengimpor BerandaPage
-import '../Pimpinan/notifikasi.dart';
-import '../Pimpinan/profile.dart';
+import 'beranda.dart';
+import 'notifikasi.dart';
+import 'profile.dart';
 
 class Navigasi extends StatefulWidget {
   @override
@@ -12,9 +12,9 @@ class _NavigasiState extends State<Navigasi> {
   int _selectedIndex = 0;
 
   static final List<Widget> _pages = [
-    BerandaPage(),        // BerandaPage dari dosen
-    NotifikasiPage(),     // Notifikasi
-    ProfilePage(),        // Profil
+    BerandaPage(),
+    NotifikasiScreen(),
+    ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -42,12 +42,16 @@ class _NavigasiState extends State<Navigasi> {
               label: 'Beranda',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.description),
+              label: 'Pelatihan',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.notifications_active),
               label: 'Notifikasi',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
-              label: 'Profile',
+              label: 'Profil',
             ),
           ],
           currentIndex: _selectedIndex,

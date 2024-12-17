@@ -1,27 +1,49 @@
 import 'package:flutter/material.dart';
-import 'detail_pelatihan.dart'; // Pastikan file detail_pelatihan.dart diimpor
+import 'package:dio/dio.dart';
+import 'agenda_kegiatan.dart';
 
-class ListPelatihanPage extends StatefulWidget {
-  const ListPelatihanPage({super.key});
+class ListKegiatanPage extends StatefulWidget {
+  const ListKegiatanPage({super.key, required kegiatanId});
 
   @override
-  _ListPelatihanPageState createState() => _ListPelatihanPageState();
+  _ListKegiatanPageState createState() => _ListKegiatanPageState();
 }
 
-class _ListPelatihanPageState extends State<ListPelatihanPage> {
-  bool isTersediaSelected = true;
+class _ListKegiatanPageState extends State<ListKegiatanPage> {
+  final Dio _dio = Dio();
+  final String baseUrl = 'http://127.0.0.1:8000/api/kegiatan';
+  List<dynamic> kegiatanList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKegiatan();
+  }
+
+  Future<void> _fetchKegiatan() async {
+    try {
+      final response = await _dio.get(baseUrl);
+      setState(() {
+        kegiatanList = response.data['data'];
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error fetching data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
-
-
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1F4C97), 
+        backgroundColor: const Color(0xFF1F4C97),
         foregroundColor: Colors.white,
-        title: const Text('List Pelatihan'),
+        title: const Text('List Kegiatan'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -29,66 +51,57 @@ class _ListPelatihanPageState extends State<ListPelatihanPage> {
           },
         ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          // List of Pelatihan
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                PelatihanItem(
-                  category: 'Business Management',
-                  title: 'Perancangan Pemasaran Online',
-                  institution: 'BNSP',
-                ),
-                PelatihanItem(
-                  category: 'Data Science',
-                  title: 'Associate Data Scientist',
-                  institution: 'LSP Digital',
-                ),
-                PelatihanItem(
-                  category: 'Web Developer',
-                  title: 'Junior Web Developer',
-                  institution: 'BPPTIK',
-                  onTap: () {
-                    // Navigasi ke halaman detail pelatihan
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const DetailPelatihanPage()),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : kegiatanList.isEmpty
+              ? const Center(child: Text('Tidak ada data kegiatan'))
+              : ListView.builder(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  itemCount: kegiatanList.length,
+                  itemBuilder: (context, index) {
+                    final kegiatan = kegiatanList[index];
+                    return KegiatanItem(
+                      category: kegiatan['jenis_kegiatan']?['nama_jenis_kegiatan'] ??
+                          'Tidak ada Kegiatan',
+                      title: kegiatan['nama_kegiatan'] ?? 'Tidak ada nama',
+                      institution: kegiatan['tanggal']?['tanggal_mulai'] ?['tanggal_selesai']?['bobot_kerja']?['bobot_kerja']??
+                          'Tidak ada ',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ListKegiatanPage(
+                                kegiatanId: kegiatan['kegiatan_id']),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
 
-// Widget untuk menampilkan setiap item pelatihan
-class PelatihanItem extends StatelessWidget {
+// Widget untuk menampilkan setiap item kegiatan
+class KegiatanItem extends StatelessWidget {
   final String category;
   final String title;
   final String institution;
-  final VoidCallback? onTap; // Tambahkan onTap sebagai parameter opsional
+  final VoidCallback? onTap;
 
-  const PelatihanItem({
+  const KegiatanItem({
     super.key,
     required this.category,
     required this.title,
     required this.institution,
-    this.onTap, // Inisialisasi onTap
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      // Menggunakan InkWell untuk mendeteksi klik
-      onTap: onTap, // Fungsi onTap yang dieksekusi saat item diklik
+      onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(16),
@@ -100,7 +113,7 @@ class PelatihanItem extends StatelessWidget {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: const Offset(0, 3), // Position of the shadow
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -113,7 +126,7 @@ class PelatihanItem extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Color(0xFFDBE8FD),
+                    color: const Color(0xFFDBE8FD),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(

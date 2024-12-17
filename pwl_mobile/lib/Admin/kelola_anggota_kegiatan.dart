@@ -1,8 +1,40 @@
 import 'package:flutter/material.dart';
-import 'detail_sertifikat.dart';
+import 'package:dio/dio.dart';
+import 'agenda_kegiatan.dart';
 
-class TotalSertifikasi extends StatelessWidget {
-  const TotalSertifikasi({super.key});
+class KelolaAnggotaPage extends StatefulWidget {
+  const KelolaAnggotaPage({super.key, required kegiatanId});
+
+  @override
+  _KelolaAnggotaPageState createState() => _KelolaAnggotaPageState();
+}
+
+class _KelolaAnggotaPageState extends State<KelolaAnggotaPage> {
+  final Dio _dio = Dio();
+  final String baseUrl = 'http://127.0.0.1:8000/api/kelola_pengguna';
+  List<dynamic> kegiatanList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchKegiatan();
+  }
+
+  Future<void> _fetchKegiatan() async {
+    try {
+      final response = await _dio.get(baseUrl);
+      setState(() {
+        kegiatanList = response.data['data'];
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error fetching data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,7 +43,7 @@ class TotalSertifikasi extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F4C97),
         foregroundColor: Colors.white,
-        title: const Text('Total Sertifikasi'),
+        title: const Text('Kelola Anggota'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -19,54 +51,46 @@ class TotalSertifikasi extends StatelessWidget {
           },
         ),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                PelatihanItem(
-                  category: 'Programmer',
-                  title: 'Oracle Certified Associate (OCA)',
-                  institution: 'Oracle',
-                  onTap: () {},
-                ),
-                PelatihanItem(
-                  category: 'IT Governance',
-                  title: 'ITIL 4 Foundation',
-                  institution: 'Axelos',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DetailSertifikat(),
-                      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : kegiatanList.isEmpty
+              ? const Center(child: Text('Tidak ada data kegiatan'))
+              : ListView.builder(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  itemCount: kegiatanList.length,
+                  itemBuilder: (context, index) {
+                    final kegiatan = kegiatanList[index];
+                    return KegiatanItem(
+                      category: kegiatan['anggota_kegiatan_id']??
+                          'Tidak ada Kegiatan',
+                      title: kegiatan['user_id'] ?? 'Tidak ada ',
+                      institution: kegiatan['kegiatan_id']?['jabatan_id']??
+                          'Tidak ada ',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => KelolaAnggotaPage(
+                                kegiatanId: kegiatan['kegiatan_id']),
+                          ),
+                        );
+                      },
                     );
                   },
                 ),
-                PelatihanItem(
-                  category: 'Web Developer',
-                  title: 'Junior Web Developer',
-                  institution: 'BPPTIK',
-                  onTap: () {},
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
 
-class PelatihanItem extends StatelessWidget {
+// Widget untuk menampilkan setiap item kegiatan
+class KegiatanItem extends StatelessWidget {
   final String category;
   final String title;
   final String institution;
   final VoidCallback? onTap;
 
-  const PelatihanItem({
+  const KegiatanItem({
     super.key,
     required this.category,
     required this.title,
@@ -149,3 +173,4 @@ class PelatihanItem extends StatelessWidget {
     );
   }
 }
+
