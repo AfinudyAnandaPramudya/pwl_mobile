@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
+import 'package:pwl_mobile/Admin/jenis_kegiatan.dart';
+import 'package:pwl_mobile/Admin/kegiatan.dart';
 import 'package:pwl_mobile/Admin/pengguna.dart';
-import 'package:pwl_mobile/Dosen/progress_kegiatan.dart';
-import 'agenda_kegiatan.dart';
-import '../auth_service.dart';
-import 'list_kegiatan.dart';
+import 'progress_kegiatan.dart';
+import 'kelola_kegiatan.dart'; // Import for "Kelola Kegiatan Non JTI"
+
 class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
 
@@ -13,86 +13,28 @@ class BerandaPage extends StatefulWidget {
 }
 
 class _BerandaPageState extends State<BerandaPage> {
-  final Dio _dio = Dio();
-  final AuthService _authService = AuthService();
+  // Static data
+  final int _jumlahPengguna = 3; // Static data for Pengguna
+  final int _jumlahKegiatan = 2; // Static data for Kegiatan
 
-  final String baseUrl = 'http://127.0.0.1:8000/api';
-  final String _kegiatanUrl = 'http://127.0.0.1:8000/kegiatan';
-
+  // Dynamic data for header
   String? _nama;
-  int _jumlahKegiatan = 0;
-  bool _isLoading = true;
-  bool _isLoadingKegiatan = true;
+  bool _isLoadingHeader = true;
 
   @override
   void initState() {
     super.initState();
-    _loadUserProfile();
-    _fetchData();
+    _loadHeaderData();
   }
 
-  Future<void> _loadUserProfile() async {
-    try {
-      setState(() => _isLoading = true);
-
-      final token = await _authService.getToken();
-      if (token == null) throw Exception('Token not found');
-
-      final response = await _dio.get(
-        '$baseUrl/user',
-        options: Options(
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200 && response.data['success']) {
-        final userData = response.data['user'];
-        setState(() {
-          _nama = userData['nama'];
-          _isLoading = false;
-        });
-      } else {
-        throw Exception('Failed to load profile');
-      }
-    } catch (e) {
-      print('Error: $e');
-      setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal memuat data pengguna')),
-      );
-    }
-  }
-
-  Future<void> _fetchData() async {
+  // Simulate fetching dynamic name data
+  Future<void> _loadHeaderData() async {
+    setState(() => _isLoadingHeader = true);
+    await Future.delayed(const Duration(seconds: 1)); // Simulate API call
     setState(() {
-            _isLoadingKegiatan = true;
+      _nama = "Fidaa"; // Dynamic name from API
+      _isLoadingHeader = false;
     });
-    await Future.wait([
-      _fetchJumlahKegiatan(),
-    ]);
-  }
-
-  Future<void> _fetchJumlahKegiatan() async {
-    try {
-      final response = await _dio.get(_kegiatanUrl);
-      if (response.statusCode == 200) {
-        final data = response.data['data'] as List;
-        setState(() {
-          _jumlahKegiatan = data.length;
-          _isLoadingKegiatan = false;
-        });
-      } else {
-        throw Exception('Gagal memuat data Kegiatan');
-      }
-    } catch (e) {
-      print('Error: $e');
-      setState(() {
-        _isLoadingKegiatan = false;
-      });
-    }
   }
 
   @override
@@ -115,7 +57,7 @@ class _BerandaPageState extends State<BerandaPage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    _isLoading ? 'Memuat...' : 'Halo, $_nama',
+                    _isLoadingHeader ? 'Memuat...' : 'Halo, $_nama',
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -134,43 +76,17 @@ class _BerandaPageState extends State<BerandaPage> {
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _fetchData,
-            tooltip: 'Perbarui Data',
-          ),
-        ],
       ),
       backgroundColor: const Color(0xFF1F4C97),
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader()
+            _buildHeader(),
+            Expanded(
+              child: _buildContent(context),
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildContent(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20),
-          _buildCard(context),
-          Expanded(
-            child: _buildCategorySection(context),
-          ),
-        ],
       ),
     );
   }
@@ -189,79 +105,6 @@ class _BerandaPageState extends State<BerandaPage> {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: _buildTitle(),
-      ),
-    );
-  }
-
-  Widget _buildCard(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: const Color(0xFFEDF6FF),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(left: 20.0),
-                  child: Text(
-                    'Daftar Kegiatan',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF494949),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.only(left: 50.0),
-                  child: Text(
-                    '0',
-                    style: const TextStyle(
-                      fontSize: 60,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF494949),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                InkWell(
-                  onTap: () => _navigateToAgendaKegiatan(context),
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 30.0),
-                    child: Text(
-                      'Lihat daftar Kegiatan',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.withOpacity(0.6),
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              padding: const EdgeInsets.only(right: 20.0),
-              child: const SizedBox(
-                height: 100,
-                width: 100,
-                child: Image(
-                  image: AssetImage('asset/List.png'),
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -293,6 +136,25 @@ class _BerandaPageState extends State<BerandaPage> {
     );
   }
 
+  Widget _buildContent(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+          _buildCategorySection(context),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCategorySection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,22 +171,37 @@ class _BerandaPageState extends State<BerandaPage> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          child: Wrap(
+            spacing: 16.0, // Horizontal space between cards
+            runSpacing: 16.0, // Vertical space between cards
             children: [
               _buildCategoryCard(
                 context,
-                'Pengguna',
-                Icons.school,
+                'Kegiatan',
+                Icons.category_outlined,
                 _jumlahKegiatan,
-                () => _navigateToPengguna(context),
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const KegiatanPage(
+                      kegiatanId: 9,
+                    ), // Page for Jenis Kegiatan
+                  ),
+                ),
               ),
               _buildCategoryCard(
                 context,
-                'Kegiatan',
-                Icons.school,
-                _jumlahKegiatan,
-                () => _navigateToAgendaKegiatan(context),
+                'Pengguna',
+                Icons.timeline_outlined,
+                _jumlahPengguna,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PenggunaPage(
+                      kegiatanId: 9,
+                    ), // Page for Progress Kegiatan
+                  ),
+                ),
               ),
             ],
           ),
@@ -343,7 +220,8 @@ class _BerandaPageState extends State<BerandaPage> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.42,
+        width:
+            MediaQuery.of(context).size.width * 0.4, // Adjust width for 2 cards
         decoration: BoxDecoration(
           color: const Color(0xFFEDF6FF),
           borderRadius: BorderRadius.circular(10),
@@ -376,27 +254,6 @@ class _BerandaPageState extends State<BerandaPage> {
           ],
         ),
       ),
-    );
-  }
-
-  void _navigateToAgendaKegiatan(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AgendaKegiatanPage(kegiatanId: 0,)),
-    );
-  }
-
-  void _navigateToProgress(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const ProgressPage(kegiatanId: 0,)),
-    );
-  }
-
-  void _navigateToPengguna(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const PenggunaPage(kegiatanId: 0,)),
     );
   }
 }

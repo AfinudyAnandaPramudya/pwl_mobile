@@ -14,7 +14,7 @@ class _NavigasiState extends State<Navigasi> {
   static final List<Widget> _pages = [
     BerandaPage(),
     NotifikasiScreen(),
-    ProfileScreen(),
+    ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
@@ -40,10 +40,6 @@ class _NavigasiState extends State<Navigasi> {
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: 'Beranda',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.description),
-              label: 'Pelatihan',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.notifications_active),
