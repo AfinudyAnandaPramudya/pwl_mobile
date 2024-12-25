@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ProgressKegiatan extends StatelessWidget {
-  const ProgressKegiatan({super.key, required int kegiatanId});
+class KelolaKegiatan extends StatelessWidget {
+  const KelolaKegiatan({super.key, required int kegiatanId});
 
   @override
   Widget build(BuildContext context) {
@@ -9,24 +9,30 @@ class ProgressKegiatan extends StatelessWidget {
     final List<Map<String, dynamic>> data = [
       {
         "id": 1,
-        "kegiatan": "Porseni",
-        "tanggal_mulai": "22-04-2022",
-        "tanggal_selesai": "28-04-2022",
-        "progress": 100,
+        "nama": "Panitia Skripsi",
+        "jenis": "Terprogram",
+        "tanggal_mulai": "2024-01-10",
+        "tanggal_selesai": "2024-02-20",
+        "bobot_kerja": "ringan",
+        "status": "Selesai",
       },
       {
         "id": 2,
-        "kegiatan": "Hackaton",
-        "tanggal_mulai": "19-08-2022",
-        "tanggal_selesai": "25-08-2022",
-        "progress": 50,
+        "nama": "Workshop",
+        "jenis": "Non-Program",
+        "tanggal_mulai": "2024-02-01",
+        "tanggal_selesai": "2024-03-15",
+        "bobot_kerja": "ringan",
+        "status": "Dalam Proses",
       },
       {
         "id": 3,
-        "kegiatan": "Seminar Cyber Security",
-        "tanggal_mulai": "20-07-2022",
-        "tanggal_selesai": "27-07-2022",
-        "progress": 70,
+        "nama": "Rapat",
+        "jenis": "Terprogram",
+        "tanggal_mulai": "2024-03-01",
+        "tanggal_selesai": "2024-04-01",
+        "bobot_kerja": "ringan",
+        "status": "Belum Dimulai",
       },
     ];
 
@@ -35,7 +41,7 @@ class ProgressKegiatan extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F4C97),
         foregroundColor: Colors.white,
-        title: const Text('Progress Kegiatan'),
+        title: const Text('Kelola Kegiatan'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -67,7 +73,17 @@ class ProgressKegiatan extends StatelessWidget {
               ),
               DataColumn(
                 label: Text(
-                  'Kegiatan',
+                  'Nama',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xFF1F4C97),
+                  ),
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Jenis',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -97,7 +113,17 @@ class ProgressKegiatan extends StatelessWidget {
               ),
               DataColumn(
                 label: Text(
-                  'Progress',
+                  'Bobot Kerja',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xFF1F4C97),
+                  ),
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Status',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -122,11 +148,12 @@ class ProgressKegiatan extends StatelessWidget {
                       ),
                       cells: [
                         DataCell(Text(item['id'].toString())),
-                        DataCell(Text(item['kegiatan'])),
+                        DataCell(Text(item['nama'])),
+                        DataCell(Text(item['jenis'])),
                         DataCell(Text(item['tanggal_mulai'])),
                         DataCell(Text(item['tanggal_selesai'])),
-                        DataCell(Text(
-                            '${item['progress']}%')), // Fixed progress display
+                        DataCell(Text('${item['bobot_kerja']}')),
+                        DataCell(Text(item['status'])),
                       ],
                     ),
                   ),

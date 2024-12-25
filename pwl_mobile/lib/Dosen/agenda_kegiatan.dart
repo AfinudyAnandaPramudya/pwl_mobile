@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 
 class AgendaKegiatanPage extends StatefulWidget {
-  final int kegiatanId;
+  final String kegiatanId;
 
-  const AgendaKegiatanPage({super.key, required this.kegiatanId});
+  const AgendaKegiatanPage(
+      {super.key, required this.kegiatanId, required progressDetails});
 
   @override
   State<AgendaKegiatanPage> createState() => _AgendaKegiatanPageState();
@@ -24,8 +25,7 @@ class _AgendaKegiatanPageState extends State<AgendaKegiatanPage> {
 
   Future<void> _fetchKegiatanDetail() async {
     try {
-      final response =
-          await _dio.get('$baseUrl/kegiatan/${widget.kegiatanId}');
+      final response = await _dio.get('$baseUrl/kegiatan/${widget.kegiatanId}');
 
       setState(() {
         _kegiatanData = response.data['data'];
@@ -46,7 +46,7 @@ class _AgendaKegiatanPageState extends State<AgendaKegiatanPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF1F4C97),
         foregroundColor: Colors.white,
-        title: const Text('Detail Kegiatan'),
+        title: const Text('Detail Agenda Kegiatan'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -84,27 +84,28 @@ class _AgendaKegiatanPageState extends State<AgendaKegiatanPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          _kegiatanData!['agenda_name'] ?? 'Tidak ada nama',
+                          _kegiatanData!['nama_kegiatan'] ?? 'Tidak ada nama',
                           style: const TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold),
                         ),
-                        Text(
-                            _kegiatanData!['vendor']?['vendor_nama'] ??
-                                'Tidak ada vendor',
-                            style: const TextStyle(color: Colors.grey)),
-                        const SizedBox(height: 16),
+                        _buildInfoRow('Level Kegiatan : ',
+                            _kegiatanData!['kegiatan_id'] ?? 'Tidak ada id'),
+                        /*_buildInfoRow(
+                            'Tanggal Mulai : ',
+                            _kegiatanData!['tanggal_mulai']?.int() ??
+                                'Tidak ada tanggal'),
                         _buildInfoRow(
-                            'Level Kegiatan',
-                            _kegiatanData!['level_kegiatan'] ??
-                                'Tidak ada level'),
-                        _buildInfoRow('Tanggal',
-                            _kegiatanData!['tanggal'] ?? 'Tidak ada tanggal'),
-                        _buildInfoRow('Lokasi',
-                            _kegiatanData!['lokasi'] ??
-                                'Tidak ada lokasi'),
-                        _buildInfoRow('Kuota Peserta',
-                            _kegiatanData!['kuota']?.toString() ?? 'Tidak ada kuota'),
-                        _buildInfoRow('Biaya', _kegiatanData!['biaya']?.toString() ?? 'Tidak ada biaya'),
+                            'Tanggal Selesai',
+                            _kegiatanData!['tanggal_selesai'].int() ??
+                                'Tidak ada tanggal'),*/
+                        _buildInfoRow(
+                            'Tempat',
+                            _kegiatanData!['tempat']?.toString() ??
+                                'Tidak ada kuota'),
+                        _buildInfoRow(
+                            'status',
+                            _kegiatanData!['status']?.toString() ??
+                                'Tidak ada biaya'),
                         const SizedBox(height: 30),
                         const Text(
                           'Deskripsi Kegiatan',
@@ -113,7 +114,8 @@ class _AgendaKegiatanPageState extends State<AgendaKegiatanPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          _kegiatanData!['deskripsi'] ?? 'Tidak ada deskripsi',
+                          _kegiatanData!['deskripsi_kegiatan'] ??
+                              'Tidak ada deskripsi',
                           style: TextStyle(color: Colors.grey[600]),
                           textAlign: TextAlign.justify,
                         ),
